@@ -19,8 +19,8 @@ namespace RPG.Data
         {
             modelBuilder.Entity<Character>().HasData(
                 new Character { Id = 1, Name = "FirstTestPlayer"},
-                new Character { Id = 2, Name = "SecondTestPlayer"},
-                new Character { Id = 3, Name = "ThirdTestPlayer"}
+                new Character { Id = 2, Name = "SecondTestPlayer", Class = CharacterClass.Archer},
+                new Character { Id = 3, Name = "ThirdTestPlayer", Class = CharacterClass.Wizard}
             );
         }
 

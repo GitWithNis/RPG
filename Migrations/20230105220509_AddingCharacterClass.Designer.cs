@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RPG.Data;
 
@@ -10,9 +11,11 @@ using RPG.Data;
 namespace RPG.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230105220509_AddingCharacterClass")]
+    partial class AddingCharacterClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,7 +77,7 @@ namespace RPG.Migrations
                         new
                         {
                             Id = 2,
-                            Class = 4,
+                            Class = 1,
                             Defense = 10,
                             Dexterity = 10,
                             HP = 100,
@@ -86,7 +89,7 @@ namespace RPG.Migrations
                         new
                         {
                             Id = 3,
-                            Class = 6,
+                            Class = 1,
                             Defense = 10,
                             Dexterity = 10,
                             HP = 100,

@@ -1,3 +1,5 @@
+using RPG.Models;
+
 namespace RPG.Dtos
 {
     public class GetCharacterDto
@@ -10,6 +12,7 @@ namespace RPG.Dtos
         public int Defense { get; set; }
         public int Intelligence { get; set; }
         public int Dexterity { get; set; }
+        public CharacterClass Class { get; set; }
     }
 
     
