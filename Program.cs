@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using RPG.Services.CharacterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMvc();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -16,6 +18,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICharacterService, CharacterService>();
 
 var app = builder.Build();
 
