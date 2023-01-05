@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+using RPG.Data;
 using RPG.Dtos;
 using RPG.Models;
 
@@ -12,22 +14,19 @@ namespace RPG.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        //temp "data" object
-        List<Character> charList = new List<Character>(){
-            new Character(){Id = 1, Name = "FirstPerson"},
-            new Character(){Id = 2, Name = "SecondPerson", MaxHP = 250, HP = 250}
-        };
         private readonly IMapper _mapper;
+        private readonly DataContext _dataContext;
         
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper, DataContext dataContext)
         {
             _mapper = mapper;
+            _dataContext = dataContext;
         }
 
         public async Task<ApiResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var response = new ApiResponse<List<GetCharacterDto>>();
-            response.Data = charList.Select(e => _mapper.Map<GetCharacterDto>(e)).ToList();
+            response.Data = await _dataContext.Characters.Select(e => _mapper.Map<GetCharacterDto>(e)).ToListAsync();
 
             return response;
         }
@@ -35,7 +34,7 @@ namespace RPG.Services.CharacterService
         public async Task<ApiResponse<GetCharacterDto>> GetCharacterById(int Id)
         {
             var response = new ApiResponse<GetCharacterDto>();
-            var character = charList.FirstOrDefault(e => e.Id == Id);
+            var character = await _dataContext.Characters.FirstOrDefaultAsync(e => e.Id == Id);
 
             if (character is null){
                 response.Success = false;
