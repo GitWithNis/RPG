@@ -27,5 +27,10 @@ namespace RPG.Controllers
         public async Task<ActionResult<ApiResponse<GetCharacterDto>>> GetCharacterById(int Id){
             return Ok(await _characterService.GetCharacterById(Id));
         }
+
+        [HttpPost("Add")]
+        public async Task<ActionResult<ApiResponse<GetCharacterDto>>> AddCharacter(AddCharacterDto request){
+            return Ok(await _characterService.AddCharacter(request));
+        }
     }
 }

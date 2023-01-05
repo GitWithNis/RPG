@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure.Core.GeoJson;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -21,6 +22,18 @@ namespace RPG.Services.CharacterService
         {
             _mapper = mapper;
             _dataContext = dataContext;
+        }
+
+        public async Task<ApiResponse<GetCharacterDto>> AddCharacter(AddCharacterDto request)
+        {
+            var response = new ApiResponse<GetCharacterDto>();
+            var character = _mapper.Map<Character>(request);
+
+            await _dataContext.Characters.AddAsync(character);
+            await _dataContext.SaveChangesAsync();
+
+            response.Data = _mapper.Map<GetCharacterDto>(character);
+            return response;
         }
 
         public async Task<ApiResponse<List<GetCharacterDto>>> GetAllCharacters()

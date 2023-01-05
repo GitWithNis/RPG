@@ -6,5 +6,6 @@ namespace RPG.Services.CharacterService
     {
         public Task<ApiResponse<List<GetCharacterDto>>> GetAllCharacters();
         public Task<ApiResponse<GetCharacterDto>> GetCharacterById(int Id);
+        public Task<ApiResponse<GetCharacterDto>> AddCharacter(AddCharacterDto request);
     }
 }
