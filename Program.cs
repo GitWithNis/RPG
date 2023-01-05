@@ -1,10 +1,16 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using RPG.Data;
 using RPG.Services.CharacterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Db assumes you have your connection string in dotnet user-secrets "Db:ConnectionString"
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration["Db:ConnectionString"]));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
