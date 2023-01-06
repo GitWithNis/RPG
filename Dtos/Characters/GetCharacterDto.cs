@@ -1,4 +1,4 @@
-using RPG.Models;
+using RPG.Models.Enums;
 
 namespace RPG.Dtos.Characters
 {
