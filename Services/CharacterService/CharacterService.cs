@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
-using Azure.Core.GeoJson;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
 using RPG.Data;
 using RPG.Dtos;
+using RPG.Dtos.Characters;
 using RPG.Models;
 
 namespace RPG.Services.CharacterService
@@ -36,27 +30,61 @@ namespace RPG.Services.CharacterService
             return response;
         }
 
+        public async Task<ApiResponse<List<GetCharacterDto>>> DeleteCharacter(int Id)
+        {
+            var character = await _dataContext.Characters
+                .FirstOrDefaultAsync(c => c.Id == Id);
+            
+            if (character is null)
+                return new ApiResponse<List<GetCharacterDto>>(){
+                    Success = false,
+                    Message = $"Character with Id {Id} not found"
+                };
+                        
+            _dataContext.Characters.Remove(character);
+            await _dataContext.SaveChangesAsync();
+
+            return await GetAllCharacters();
+        }
+
         public async Task<ApiResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
-            var response = new ApiResponse<List<GetCharacterDto>>();
-            response.Data = await _dataContext.Characters.Select(e => _mapper.Map<GetCharacterDto>(e)).ToListAsync();
-
-            return response;
+            return new ApiResponse<List<GetCharacterDto>>(){
+                Data = await _dataContext.Characters.Select(e => _mapper.Map<GetCharacterDto>(e)).ToListAsync()
+            };
         }
 
         public async Task<ApiResponse<GetCharacterDto>> GetCharacterById(int Id)
         {
-            var response = new ApiResponse<GetCharacterDto>();
-            var character = await _dataContext.Characters.FirstOrDefaultAsync(e => e.Id == Id);
+            var character = await _dataContext.Characters
+                .FirstOrDefaultAsync(e => e.Id == Id);
 
-            if (character is null){
-                response.Success = false;
-                response.Message = $"Could not find character with Id {Id}";
-                return response;
-            }
+            if (character is null)
+                return new ApiResponse<GetCharacterDto>(){
+                    Success = false,
+                    Message = $"Character with Id {Id} not found"
+                };
 
-            response.Data = _mapper.Map<GetCharacterDto>(character);
-            return response;
+            return new ApiResponse<GetCharacterDto>(){
+                Data = _mapper.Map<GetCharacterDto>(character)
+            };
+        }
+
+        public async Task<ApiResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updateChar)
+        {
+            var character = await _dataContext.Characters
+                .FirstOrDefaultAsync(e => e.Id == updateChar.Id);
+
+            if (character is null)
+                return new ApiResponse<GetCharacterDto>(){
+                    Success = false,
+                    Message = $"Character with Id {updateChar.Id} not found"
+                };
+
+            _mapper.Map(updateChar, character);
+            await _dataContext.SaveChangesAsync();
+
+            return await GetCharacterById(updateChar.Id);           
         }
     }
 }

@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using AutoMapper;
-using RPG.Dtos;
+using RPG.Dtos.Characters;
 using RPG.Models;
 
 namespace RPG
@@ -16,6 +10,7 @@ namespace RPG
         {
             CreateMap<Character, GetCharacterDto>();
             CreateMap<AddCharacterDto, Character>();
+            CreateMap<UpdateCharacterDto, Character>();
         }
     }
 }

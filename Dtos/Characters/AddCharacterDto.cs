@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RPG.Models;
 
-namespace RPG.Dtos
+namespace RPG.Dtos.Characters
 {
     public class AddCharacterDto
     {
