@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using RPG.Models.Enums;
 
-namespace RPG.Models
+namespace RPG.Dtos.Armors
 {
-    public class Armor
+    public class GetArmorDto
     {
         public int Id { get; set; }
-        public List<Character>? CharacterId { get; set; }
         public string Name { get; set; } = "Nameless Armor";
         public int Defense { get; set; }
         public int Protection { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RPG.Data;
+using RPG.Services.ArmorService;
 using RPG.Services.CharacterService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IArmorService, ArmorService>();
 
 var app = builder.Build();
 

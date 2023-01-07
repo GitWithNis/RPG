@@ -1,4 +1,5 @@
 using RPG.Models.Enums;
+using RPG.Models;
 
 namespace RPG.Dtos.Characters
 {
@@ -13,6 +14,7 @@ namespace RPG.Dtos.Characters
         public int Intelligence { get; set; }
         public int Dexterity { get; set; }
         public CharacterClass Class { get; set; }
+        public List<Armor>? Armor { get; set; }
     }
 
     

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using RPG.Models.Enums;
 
 namespace RPG.Models
@@ -14,5 +15,8 @@ namespace RPG.Models
         public int Dexterity { get; set; } = 10;
         public CharacterClass Class { get; set; } = CharacterClass.Warrior;
 
+        // Head, Neck, Chest, Hands, Fingers x 2, Legs, Feet in that order
+        List<Armor> ArmorList { get; set; } = new List<Armor>(8);
+        
     }
 }
