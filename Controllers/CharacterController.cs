@@ -39,5 +39,15 @@ namespace RPG.Controllers
         public async Task<ActionResult<ApiResponse<List<GetCharacterDto>>>> DeleteCharacter(int id){
             return Ok(await _characterService.DeleteCharacter(id));
         }
+
+        [HttpPut("armor/equip")]
+        public async Task<ActionResult<ApiResponse<List<GetCharacterDto>>>> EquipArmor(EquipArmorDto request){
+            return Ok(await _characterService.EquipArmor(request));
+        }
+
+        [HttpPut("armor/remove")]
+        public async Task<ActionResult<ApiResponse<List<GetCharacterDto>>>> RemoveArmor(RemoveArmorDto request){
+            return Ok(await _characterService.RemoveArmor(request));
+        }
     }
 }

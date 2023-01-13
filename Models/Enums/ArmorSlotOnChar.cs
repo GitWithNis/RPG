@@ -2,9 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace RPG.Models.Enums
 {
-    //for swaggerUI to actually display the enum instead of 0, 1, 2, etc.  
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum ArmorSlot
+    public enum ArmorSlotOnChar
     {
         Head,
         Neck,
@@ -12,6 +11,7 @@ namespace RPG.Models.Enums
         Hands,
         Legs,
         Feet,
-        Fingers
+        FingerL,
+        FingerR
     }
 }

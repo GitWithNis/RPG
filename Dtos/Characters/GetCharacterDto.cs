@@ -14,7 +14,7 @@ namespace RPG.Dtos.Characters
         public int Intelligence { get; set; }
         public int Dexterity { get; set; }
         public CharacterClass Class { get; set; }
-        public List<Armor>? Armor { get; set; }
+        public CharArmor CharArmor { get; set; } = new CharArmor();
     }
 
     

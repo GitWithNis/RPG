@@ -8,6 +8,7 @@ namespace RPG.Dtos.Armors
 {
     public class GetArmorDto
     {
+        public int CharacterId { get; set; }
         public int Id { get; set; }
         public string Name { get; set; } = "Nameless Armor";
         public int Defense { get; set; }

@@ -4,6 +4,7 @@ using RPG.Data;
 using RPG.Dtos;
 using RPG.Dtos.Armors;
 using RPG.Models;
+using RPG.Services.CharacterService;
 
 namespace RPG.Services.ArmorService
 {
@@ -11,15 +12,26 @@ namespace RPG.Services.ArmorService
     {
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
-        public ArmorService(DataContext dataContext, IMapper mapper)
+        private readonly ICharacterService _characterService;
+        public ArmorService(DataContext dataContext, ICharacterService characterService, IMapper mapper)
         {
             _mapper = mapper;
+            _characterService = characterService;
             _dataContext = dataContext;
         }
 
         public async Task<ApiResponse<GetArmorDto>> AddArmor(AddArmorDto request)
         {
+            var character = await _dataContext.Characters
+                .FirstOrDefaultAsync(c => c.Id == request.CharacterId);
+            if (character is null)
+                return new ApiResponse<GetArmorDto>(){
+                    Success = false,
+                    Message = $"Character with Id {request.CharacterId} not found."
+                };
+
             var armor = _mapper.Map<Armor>(request);
+            armor.CharacterId = character.Id;
 
             await _dataContext.AddAsync(armor);
             await _dataContext.SaveChangesAsync();
