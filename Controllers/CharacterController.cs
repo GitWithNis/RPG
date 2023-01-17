@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RPG.Dtos;
 using RPG.Dtos.Characters;
@@ -6,6 +7,7 @@ using RPG.Services.CharacterService;
 namespace RPG.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class CharacterController : ControllerBase
     {

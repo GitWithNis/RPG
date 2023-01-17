@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RPG.Dtos;
 using RPG.Dtos.Armors;
@@ -6,6 +7,7 @@ using RPG.Services.ArmorService;
 namespace RPG.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class ArmorController : ControllerBase
     {

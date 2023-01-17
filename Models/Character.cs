@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using RPG.Models.Enums;
 
 namespace RPG.Models
@@ -7,16 +6,16 @@ namespace RPG.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = "Nameless";
-        public int MaxHP { get; set; } = 100;
-        public int HP { get; set; } = 100;
+        public int MaxHp { get; set; } = 100;
+        public int Hp { get; set; } = 100;
         public int Strength { get; set; } = 10;
         public int Defense { get; set; } = 10;
         public int Intelligence { get; set; } = 10;
         public int Dexterity { get; set; } = 10;
+        public User? User { get; set; }
         public CharacterClass Class { get; set; } = CharacterClass.Warrior;
 
-        public CharArmor CharArmor { get; set; } = new CharArmor();
-        
+        public CharArmor CharArmor { get; set; } = new();
     }
 
     public class CharArmor 
@@ -59,6 +58,8 @@ namespace RPG.Models
                 case ArmorSlotOnChar.FingerR: 
                     FingerR = armor;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
             }
         }
         public void RemoveArmor(ArmorSlotOnChar slot){
@@ -88,6 +89,8 @@ namespace RPG.Models
                 case ArmorSlotOnChar.FingerR: 
                     FingerR = null;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
             }
         }
     }

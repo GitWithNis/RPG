@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using RPG.Models;
-using RPG.Models.Enums;
 
 namespace RPG.Data
 {
@@ -27,6 +26,7 @@ namespace RPG.Data
 
         public DbSet<Character> Characters => Set<Character>();
         public DbSet<Armor> Armor => Set<Armor>();
+        public DbSet<User> Users => Set<User>();
         
     }
 }
