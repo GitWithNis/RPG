@@ -7,5 +7,6 @@ namespace RPG.Services.AuthenticationService
     {
         Task<ApiResponse<int>> Register(UserRegisterDto request);
         Task<ApiResponse<string>> Login(UserLoginDto request);
+        int GetUserId();
     }
 }

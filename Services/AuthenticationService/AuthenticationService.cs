@@ -13,11 +13,13 @@ namespace RPG.Services.AuthenticationService
     {
         private readonly DataContext _dataContext;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthenticationService(DataContext dataContext, IConfiguration configuration)
+        public AuthenticationService(DataContext dataContext, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _dataContext = dataContext;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ApiResponse<string>> Login(UserLoginDto request)
@@ -62,6 +64,9 @@ namespace RPG.Services.AuthenticationService
                 Data = user.Id
             };
         }
+
+        public int GetUserId() =>
+            int.Parse(_httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
