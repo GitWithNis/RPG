@@ -1,12 +1,11 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using RPG.Data;
 using RPG.Dtos;
-using RPG.Dtos.Armors;
 using RPG.Dtos.Characters;
 using RPG.Models;
 using RPG.Models.Enums;
+using RPG.Services.AuthenticationService;
 
 namespace RPG.Services.CharacterService
 {
@@ -14,17 +13,30 @@ namespace RPG.Services.CharacterService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _dataContext;
-        
-        public CharacterService(IMapper mapper, DataContext dataContext)
+        private readonly IAuthenticationService _authenticationService;
+
+        public CharacterService(IMapper mapper, DataContext dataContext, IAuthenticationService authenticationService)
         {
             _mapper = mapper;
             _dataContext = dataContext;
+            _authenticationService = authenticationService;
         }
 
         public async Task<ApiResponse<GetCharacterDto>> AddCharacter(AddCharacterDto request)
         {
             var response = new ApiResponse<GetCharacterDto>();
             var character = _mapper.Map<Character>(request);
+            
+            var user = await _dataContext.Users
+                .FirstOrDefaultAsync(u => u.Id == _authenticationService.GetUserId());
+            if (user is null)
+                return new ApiResponse<GetCharacterDto>()
+                {
+                    Success = false,
+                    Message = "Error with Authentication."
+                };
+            
+            character.User = user;
 
             await _dataContext.Characters.AddAsync(character);
             await _dataContext.SaveChangesAsync();
@@ -36,6 +48,7 @@ namespace RPG.Services.CharacterService
         public async Task<ApiResponse<List<GetCharacterDto>>> DeleteCharacter(int Id)
         {
             var character = await _dataContext.Characters
+                .Where(c => c.User.Id == _authenticationService.GetUserId())
                 .FirstOrDefaultAsync(c => c.Id == Id);
             
             if (character is null)
@@ -52,14 +65,20 @@ namespace RPG.Services.CharacterService
 
         public async Task<ApiResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
+            var characters = await _dataContext.Characters
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
+                .Select(c => _mapper.Map<GetCharacterDto>(c))
+                .ToListAsync();
+            
             return new ApiResponse<List<GetCharacterDto>>(){
-                Data = await _dataContext.Characters.Select(e => _mapper.Map<GetCharacterDto>(e)).ToListAsync()
+                Data = characters
             };
         }
 
-        public async Task<ApiResponse<GetCharacterDto>> GetCharacterById(int Id)
+        public async Task<ApiResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var character = await _dataContext.Characters
+                .Where(c => c.User.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -69,12 +88,12 @@ namespace RPG.Services.CharacterService
                 .Include(e => e.CharArmor.Feet)
                 .Include(e => e.CharArmor.FingerL)
                 .Include(e => e.CharArmor.FingerR)
-                .FirstOrDefaultAsync(e => e.Id == Id);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (character is null)
                 return new ApiResponse<GetCharacterDto>(){
                     Success = false,
-                    Message = $"Character with Id {Id} not found."
+                    Message = $"Character with Id {id} not found."
                 };
 
             return new ApiResponse<GetCharacterDto>(){
@@ -85,6 +104,7 @@ namespace RPG.Services.CharacterService
         public async Task<ApiResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updateChar)
         {
             var character = await _dataContext.Characters
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
                 .FirstOrDefaultAsync(e => e.Id == updateChar.Id);
 
             if (character is null)
@@ -103,6 +123,7 @@ namespace RPG.Services.CharacterService
         public async Task<ApiResponse<GetCharacterDto>> RemoveArmor(RemoveArmorDto request)
         {
             var character = await _dataContext.Characters
+                .Where(c => c.User.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -139,6 +160,7 @@ namespace RPG.Services.CharacterService
                 };
 
             var character = await _dataContext.Characters
+                .Where(c => c.User.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -157,6 +179,7 @@ namespace RPG.Services.CharacterService
                 };
 
             var armor = await _dataContext.Armor
+                .Where(c => c.Id == _authenticationService.GetUserId())
                 .Where(a => a.CharacterId == character.Id)
                 .FirstOrDefaultAsync(a => a.Id == request.ArmorId);
             if (armor is null)
@@ -176,36 +199,8 @@ namespace RPG.Services.CharacterService
             } else {
                slotToEquip = (ArmorSlotOnChar) armor.Slot;
             }
-
-            //character.CharArmor.SetArmor(slotToEquip, armor);
-
-            switch (slotToEquip)
-            {
-                case ArmorSlotOnChar.Head: 
-                    character.CharArmor.Head = armor;
-                    break;
-                case ArmorSlotOnChar.Neck: 
-                    character.CharArmor.Neck = armor;
-                    break;
-                case ArmorSlotOnChar.Chest: 
-                    character.CharArmor.Chest = armor;
-                    break;
-                case ArmorSlotOnChar.Hands: 
-                    character.CharArmor.Hands = armor;
-                    break;
-                case ArmorSlotOnChar.Legs: 
-                    character.CharArmor.Legs = armor;
-                    break;
-                case ArmorSlotOnChar.Feet: 
-                    character.CharArmor.Feet = armor;
-                    break;
-                case ArmorSlotOnChar.FingerL: 
-                    character.CharArmor.FingerL = armor;
-                    break;
-                case ArmorSlotOnChar.FingerR: 
-                    character.CharArmor.FingerR = armor;
-                    break;
-            }
+            
+            character.CharArmor.SetArmor(slotToEquip, armor);
 
             await _dataContext.SaveChangesAsync();
             
