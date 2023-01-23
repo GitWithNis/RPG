@@ -6,6 +6,7 @@ using RPG.Data;
 using RPG.Services.ArmorService;
 using RPG.Services.AuthenticationService;
 using RPG.Services.CharacterService;
+using RPG.Services.MonsterService;
 using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IArmorService, ArmorService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IMonsterService, MonsterService>();
 
 var app = builder.Build();
 

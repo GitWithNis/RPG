@@ -22,11 +22,19 @@ namespace RPG.Data
                     eb.Property(p => p.MagicProt).HasColumnType("decimal(18,4)");
                 }
             );
+
+            modelBuilder.Entity<Monster>(
+                eb =>
+                {
+                    eb.Property(p => p.Pierce).HasColumnType("decimal(18,4)");
+                }
+            );
         }
 
         public DbSet<Character> Characters => Set<Character>();
         public DbSet<Armor> Armor => Set<Armor>();
         public DbSet<User> Users => Set<User>();
-        
+        public DbSet<Monster> Monsters => Set<Monster>();
+
     }
 }
