@@ -17,6 +17,9 @@ namespace RPG.Models
         
         public CharacterClass Class { get; set; } = CharacterClass.Warrior;
         public CharArmor CharArmor { get; set; } = new();
+
+        public Monster? Monster { get; set; }
+        public int? MonsterId { get; set; }
     }
 
     public class CharArmor 
@@ -26,7 +29,6 @@ namespace RPG.Models
         
         public Armor? Head { get; set; }
         public Armor? Neck { get; set; }
-
         public Armor? Chest { get; set; }
         public Armor? Hands { get; set; }
         public Armor? Legs { get; set; }
