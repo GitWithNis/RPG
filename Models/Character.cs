@@ -13,8 +13,9 @@ namespace RPG.Models
         public int Intelligence { get; set; } = 10;
         public int Dexterity { get; set; } = 10;
         public User? User { get; set; }
+        public int UserId { get; set; }
+        
         public CharacterClass Class { get; set; } = CharacterClass.Warrior;
-
         public CharArmor CharArmor { get; set; } = new();
     }
 
@@ -22,8 +23,10 @@ namespace RPG.Models
     {
         public int Id { get; set; }
         public int CharacterId { get; set; }
+        
         public Armor? Head { get; set; }
         public Armor? Neck { get; set; }
+
         public Armor? Chest { get; set; }
         public Armor? Hands { get; set; }
         public Armor? Legs { get; set; }
@@ -31,7 +34,8 @@ namespace RPG.Models
         public Armor? FingerL { get; set; }
         public Armor? FingerR { get; set; }
 
-        public void SetArmor(ArmorSlotOnChar slot, Armor armor){
+        public void SetArmor(ArmorSlotOnChar slot, Armor armor)
+        {
             switch (slot)
             {
                 case ArmorSlotOnChar.Head: 
@@ -62,7 +66,9 @@ namespace RPG.Models
                     throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
             }
         }
-        public void RemoveArmor(ArmorSlotOnChar slot){
+        
+        public void RemoveArmor(ArmorSlotOnChar slot)
+        {
             switch (slot)
             {
                 case ArmorSlotOnChar.Head: 

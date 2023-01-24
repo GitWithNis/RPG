@@ -5,7 +5,10 @@ namespace RPG.Models
     public class Armor
     {
         public int Id { get; set; }
+        
         public int CharacterId { get; set; }
+        public Character? Character { get; set; }
+        
         public string Name { get; set; } = "Nameless Armor";
         public int Defense { get; set; } = 0;
         public int Protection { get; set; } = 0;
