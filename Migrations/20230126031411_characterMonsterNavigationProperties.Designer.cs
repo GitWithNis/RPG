@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RPG.Data;
 
@@ -11,9 +12,11 @@ using RPG.Data;
 namespace RPG.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230126031411_characterMonsterNavigationProperties")]
+    partial class characterMonsterNavigationProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +65,7 @@ namespace RPG.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("Armor", (string)null);
+                    b.ToTable("Armor");
                 });
 
             modelBuilder.Entity("RPG.Models.CharArmor", b =>
@@ -121,7 +124,7 @@ namespace RPG.Migrations
 
                     b.HasIndex("NeckId");
 
-                    b.ToTable("CharArmor", (string)null);
+                    b.ToTable("CharArmor");
                 });
 
             modelBuilder.Entity("RPG.Models.Character", b =>
@@ -186,7 +189,7 @@ namespace RPG.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Characters", (string)null);
+                    b.ToTable("Characters");
                 });
 
             modelBuilder.Entity("RPG.Models.Monster", b =>
@@ -226,7 +229,7 @@ namespace RPG.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Monsters", (string)null);
+                    b.ToTable("Monsters");
                 });
 
             modelBuilder.Entity("RPG.Models.User", b =>
@@ -251,7 +254,7 @@ namespace RPG.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("RPG.Models.Armor", b =>

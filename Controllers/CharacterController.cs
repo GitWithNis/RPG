@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RPG.Dtos;
+using RPG.Dtos.Attacks;
 using RPG.Dtos.Characters;
 using RPG.Services.CharacterService;
 
@@ -50,6 +51,12 @@ namespace RPG.Controllers
         [HttpPut("armor/remove")]
         public async Task<ActionResult<ApiResponse<List<GetCharacterDto>>>> RemoveArmor(RemoveArmorDto request){
             return Ok(await _characterService.RemoveArmor(request));
+        }
+
+        [HttpPut("attackMonster/{charId:int}")]
+        public async Task<ActionResult<ApiResponse<AttackResultDto>>> AttackMonster(int charId)
+        {
+            return Ok(await _characterService.AttackMonster(charId));
         }
     }
 }

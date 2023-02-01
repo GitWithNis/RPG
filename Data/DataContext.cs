@@ -19,6 +19,20 @@ namespace RPG.Data
                 .HasOne(m => m.Character)
                 .WithOne(c => c.Monster)
                 .HasForeignKey<Monster>(m => m.CharacterId);
+
+            modelBuilder.Entity<Character>()
+                .HasOne(c => c.Monster)
+                .WithOne(m => m.Character)
+                .HasForeignKey<Character>(c => c.MonsterId);
+
+            modelBuilder.Entity<Character>(
+                eb =>
+                {
+                    eb.Property(p => p.MeleeProt).HasColumnType("decimal(18,4)");
+                    eb.Property(p => p.RangedProt).HasColumnType("decimal(18,4)");
+                    eb.Property(p => p.MagicProt).HasColumnType("decimal(18,4)");
+                }
+            );
             
             modelBuilder.Entity<Armor>(
                 eb => {

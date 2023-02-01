@@ -26,7 +26,7 @@ public class MonsterService : IMonsterService
     public async Task<ApiResponse<List<GetMonsterDto>>> GetAllMonsters(int charId)
     {
         var character = await _dataContext.Characters
-            .Where(c => c.User.Id == _authenticationService.GetUserId())
+            .Where(c => c.User!.Id == _authenticationService.GetUserId())
             .FirstOrDefaultAsync(c => c.Id == charId);
         if (character is null)
             return new ApiResponse<List<GetMonsterDto>>()
@@ -47,7 +47,7 @@ public class MonsterService : IMonsterService
     public async Task<ApiResponse<GetMonsterDto>> GetMonsterById(int charId, int monsterId)
     {
         var character = await _dataContext.Characters
-            .Where(c => c.User.Id == _authenticationService.GetUserId())
+            .Where(c => c.User!.Id == _authenticationService.GetUserId())
             .FirstOrDefaultAsync(c => c.Id == charId);
         if (character is null)
             return new ApiResponse<GetMonsterDto>()
@@ -75,7 +75,7 @@ public class MonsterService : IMonsterService
     public async Task<ApiResponse<GetMonsterDto>> CreateMonster(CreateMonsterDto request)
     {
         var character = await _dataContext.Characters
-            .Where(c => c.User.Id == _authenticationService.GetUserId())
+            .Where(c => c.User!.Id == _authenticationService.GetUserId())
             .FirstOrDefaultAsync(c => c.Id == request.CharId);
         if (character is null)
             return new ApiResponse<GetMonsterDto>()
@@ -89,7 +89,7 @@ public class MonsterService : IMonsterService
         var monster = new Monster
         {
             AttackType = (AttackType)rand.Next(Enum.GetValues(typeof(AttackType)).Length),
-            Pierce = (difficultyInt + rand.Next(difficultyInt + 1)) / 2,
+            Pierce = (difficultyInt + rand.Next(difficultyInt + 1)) / 2m,
             Attack = difficultyInt + rand.Next(difficultyInt + 1),
             Dexterity = difficultyInt + rand.Next(difficultyInt + 1),
             Strength = difficultyInt + rand.Next(difficultyInt + 1),
@@ -118,6 +118,8 @@ public class MonsterService : IMonsterService
         }
 
         await _dataContext.Monsters.AddAsync(monster);
+        character.MonsterId = monster.Id;
+
         await _dataContext.SaveChangesAsync();
 
         return new ApiResponse<GetMonsterDto>()

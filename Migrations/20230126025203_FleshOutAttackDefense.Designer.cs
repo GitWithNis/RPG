@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RPG.Data;
 
@@ -11,9 +12,11 @@ using RPG.Data;
 namespace RPG.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230126025203_FleshOutAttackDefense")]
+    partial class FleshOutAttackDefense
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +65,7 @@ namespace RPG.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("Armor", (string)null);
+                    b.ToTable("Armor");
                 });
 
             modelBuilder.Entity("RPG.Models.CharArmor", b =>
@@ -121,7 +124,7 @@ namespace RPG.Migrations
 
                     b.HasIndex("NeckId");
 
-                    b.ToTable("CharArmor", (string)null);
+                    b.ToTable("CharArmor");
                 });
 
             modelBuilder.Entity("RPG.Models.Character", b =>
@@ -180,13 +183,9 @@ namespace RPG.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MonsterId")
-                        .IsUnique()
-                        .HasFilter("[MonsterId] IS NOT NULL");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("Characters", (string)null);
+                    b.ToTable("Characters");
                 });
 
             modelBuilder.Entity("RPG.Models.Monster", b =>
@@ -226,7 +225,10 @@ namespace RPG.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Monsters", (string)null);
+                    b.HasIndex("CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("Monsters");
                 });
 
             modelBuilder.Entity("RPG.Models.User", b =>
@@ -251,7 +253,7 @@ namespace RPG.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("RPG.Models.Armor", b =>
@@ -326,30 +328,32 @@ namespace RPG.Migrations
 
             modelBuilder.Entity("RPG.Models.Character", b =>
                 {
-                    b.HasOne("RPG.Models.Monster", "Monster")
-                        .WithOne("Character")
-                        .HasForeignKey("RPG.Models.Character", "MonsterId");
-
                     b.HasOne("RPG.Models.User", "User")
                         .WithMany("Characters")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Monster");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RPG.Models.Monster", b =>
+                {
+                    b.HasOne("RPG.Models.Character", "Character")
+                        .WithOne("Monster")
+                        .HasForeignKey("RPG.Models.Monster", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("RPG.Models.Character", b =>
                 {
                     b.Navigation("CharArmor")
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("RPG.Models.Monster", b =>
-                {
-                    b.Navigation("Character");
+                    b.Navigation("Monster");
                 });
 
             modelBuilder.Entity("RPG.Models.User", b =>

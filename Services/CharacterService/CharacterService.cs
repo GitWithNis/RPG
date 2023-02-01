@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RPG.Data;
 using RPG.Dtos;
+using RPG.Dtos.Attacks;
 using RPG.Dtos.Characters;
 using RPG.Models;
 using RPG.Models.Enums;
@@ -45,16 +46,16 @@ namespace RPG.Services.CharacterService
             return response;
         }
 
-        public async Task<ApiResponse<List<GetCharacterDto>>> DeleteCharacter(int Id)
+        public async Task<ApiResponse<List<GetCharacterDto>>> DeleteCharacter(int id)
         {
             var character = await _dataContext.Characters
-                .Where(c => c.User.Id == _authenticationService.GetUserId())
-                .FirstOrDefaultAsync(c => c.Id == Id);
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
+                .FirstOrDefaultAsync(c => c.Id == id);
             
             if (character is null)
                 return new ApiResponse<List<GetCharacterDto>>(){
                     Success = false,
-                    Message = $"Character with Id {Id} not found."
+                    Message = $"Character with Id {id} not found."
                 };
                         
             _dataContext.Characters.Remove(character);
@@ -78,7 +79,7 @@ namespace RPG.Services.CharacterService
         public async Task<ApiResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var character = await _dataContext.Characters
-                .Where(c => c.User.Id == _authenticationService.GetUserId())
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -119,11 +120,11 @@ namespace RPG.Services.CharacterService
             return await GetCharacterById(updateChar.Id);           
         }
 
-        // --------------------- ARMOR SERVICES:
+        // --------------------- ARMOR RELATED SERVICES:
         public async Task<ApiResponse<GetCharacterDto>> RemoveArmor(RemoveArmorDto request)
         {
             var character = await _dataContext.Characters
-                .Where(c => c.User.Id == _authenticationService.GetUserId())
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -160,7 +161,7 @@ namespace RPG.Services.CharacterService
                 };
 
             var character = await _dataContext.Characters
-                .Where(c => c.User.Id == _authenticationService.GetUserId())
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
                 .Include(e => e.CharArmor)
                 .Include(e => e.CharArmor.Head)
                 .Include(e => e.CharArmor.Neck)
@@ -207,6 +208,62 @@ namespace RPG.Services.CharacterService
             return new ApiResponse<GetCharacterDto>(){
                 Data = _mapper.Map<GetCharacterDto>(character)
             };
+        }
+        
+        // --------------------- MONSTER RELATED SERVICES:
+
+        public async Task<ApiResponse<AttackResultDto>> AttackMonster(int charId)
+        {
+            var character = await _dataContext.Characters
+                .Where(c => c.UserId == _authenticationService.GetUserId())
+                .Include(c => c.Monster)
+                .FirstOrDefaultAsync(c => c.Id == charId);
+            if (character is null)
+                return new ApiResponse<AttackResultDto>()
+                {
+                    Success = false,
+                    Message = $"Character with id {charId} not found."
+                };
+
+            if (character.Monster is null)
+                return new ApiResponse<AttackResultDto>()
+                {
+                    Success = false,
+                    Message = $"No monster is associated with character."
+                };
+
+            var attack = character.GetAttack();
+
+            var cType = attack.AttackType;
+            var mType = character.Monster.AttackType;
+            var weak = (cType == AttackType.Magic && mType == AttackType.Ranged) ||
+                           (cType == AttackType.Ranged && mType == AttackType.Melee) ||
+                           (cType == AttackType.Melee && mType == AttackType.Magic);
+            if (weak) attack.Damage = (int)(attack.Damage * 1.5);
+            
+            //applying damage to monster and have monster attack character
+            var ret = new ApiResponse<AttackResultDto>()
+            {
+                Data = new AttackResultDto
+                {
+                    MonsterHP = character.Monster.Hp,
+                    CharacterDealt = character.Monster.GetAttacked(attack),
+                    MonsterDealt = character.Monster.Hp <= 0 ? 
+                                        0 :
+                                        character.Monster.AttackChar(),
+                    CharacterHP = character.Hp
+                }
+            };
+
+            if (character.Monster.Hp <= 0)
+            {
+                //monster defeated
+                _dataContext.Monsters.Remove(character.Monster);
+                ret.Message = "Monster defeated!";
+            }
+            
+            await _dataContext.SaveChangesAsync();
+            return ret;
         }
     }
 }
