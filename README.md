@@ -3,6 +3,9 @@
 This will be a light-weight text based RPG game built using a Dotnet backend and an ASP.NET frontend. 
 
 Planned:
+  - - [x] Register for account 🧾
+  - - [x] Authentication 🔒
+  - - [x] Log in 💻
   - Characters have: 
     - - [ ] Weapons ⚔️
     - - [ ] Skills 🪄
