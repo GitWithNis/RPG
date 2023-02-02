@@ -117,10 +117,23 @@ public class MonsterService : IMonsterService
                 break;
         }
 
-        await _dataContext.Monsters.AddAsync(monster);
-        character.MonsterId = monster.Id;
+        await using (var transaction = await _dataContext.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                await _dataContext.Monsters.AddAsync(monster);
+                await _dataContext.SaveChangesAsync();
 
-        await _dataContext.SaveChangesAsync();
+                character.MonsterId = monster.Id;
+                await _dataContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+            }
+        }
 
         return new ApiResponse<GetMonsterDto>()
         {
