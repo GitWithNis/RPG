@@ -25,6 +25,41 @@ namespace RPG.Data
                 .WithOne(m => m.Character)
                 .HasForeignKey<Character>(c => c.MonsterId);
 
+            modelBuilder.Entity<Character>(entity =>
+            {
+                entity.HasOne(c => c.Head)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.HeadId);
+                
+                entity.HasOne(c => c.Neck)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.NeckId);
+                
+                entity.HasOne(c => c.Chest)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.ChestId);
+                
+                entity.HasOne(c => c.Hands)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.HandsId);
+                
+                entity.HasOne(c => c.Legs)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.LegsId);
+                
+                entity.HasOne(c => c.Feet)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.FeetId);
+
+                entity.HasOne(c => c.FingerL)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.FingerLId);
+
+                entity.HasOne(c => c.FingerR)
+                    .WithOne()
+                    .HasForeignKey<Character>(c => c.FingerRId);
+            });
+
             modelBuilder.Entity<Character>(
                 eb =>
                 {

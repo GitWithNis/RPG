@@ -14,6 +14,8 @@ namespace RPG
             CreateMap<AddCharacterDto, Character>();
             CreateMap<UpdateCharacterDto, Character>();
 
+            CreateMap<Character, GetCharacterWithArmorDto>();
+
             CreateMap<Armor, GetArmorDto>();
             CreateMap<AddArmorDto, Armor>();
             CreateMap<UpdateArmorDto, Armor>();

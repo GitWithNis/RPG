@@ -1,5 +1,4 @@
 using RPG.Models.Enums;
-using RPG.Models;
 
 namespace RPG.Dtos.Characters
 {
@@ -7,14 +6,16 @@ namespace RPG.Dtos.Characters
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int MaxHP { get; set; }
-        public int HP { get; set; }
+        public int MaxHp { get; set; }
+        public int Hp { get; set; }
         public int Strength { get; set; }
         public int Defense { get; set; }
         public int Intelligence { get; set; }
         public int Dexterity { get; set; }
+        public decimal MeleeProt { get; set; }
+        public decimal RangedProt { get; set; }
+        public decimal MagicProt { get; set; }
         public CharacterClass Class { get; set; }
-        public CharArmor CharArmor { get; set; } = new CharArmor();
     }
 
     

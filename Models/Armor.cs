@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using RPG.Models.Enums;
 
 namespace RPG.Models
@@ -7,6 +8,7 @@ namespace RPG.Models
         public int Id { get; set; }
         
         public int CharacterId { get; set; }
+        [JsonIgnore]
         public Character? Character { get; set; }
         
         public string Name { get; set; } = "Nameless Armor";

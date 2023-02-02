@@ -17,14 +17,37 @@ namespace RPG.Models
         public decimal MeleeProt { get; set; }
         public decimal RangedProt { get; set; }
         public decimal MagicProt { get; set; }
-        
         public int Intelligence { get; set; } = 10;
         public int Dexterity { get; set; } = 10;
+        public CharacterClass Class { get; set; } = CharacterClass.Warrior;
+
         public User? User { get; set; }
         public int UserId { get; set; }
         
-        public CharacterClass Class { get; set; } = CharacterClass.Warrior;
-        public CharArmor CharArmor { get; set; } = new();
+        public Armor? Head { get; set; }
+        public int? HeadId { get; set; }
+        
+        public Armor? Neck { get; set; }
+        public int? NeckId { get; set; }
+        
+        public Armor? Chest { get; set; }
+        public int? ChestId { get; set; }
+        
+        public Armor? Hands { get; set; }
+        public int? HandsId { get; set; }
+        
+        public Armor? Legs { get; set; }
+        public int? LegsId { get; set; }
+        
+        public Armor? Feet { get; set; }
+        public int? FeetId { get; set; }
+        
+        public Armor? FingerL { get; set; }
+        public int? FingerLId { get; set; }
+        
+        public Armor? FingerR { get; set; }
+        public int? FingerRId { get; set; }
+        
 
         public Monster? Monster { get; set; }
         public int? MonsterId { get; set; }
@@ -71,32 +94,13 @@ namespace RPG.Models
 
             return attack;
         }
-    }
-
-    public class CharArmor 
-    {
-        public int Id { get; set; }
         
-        public int CharacterId { get; set; }
-        public Character? Character { get; set; }
-        
-        public Armor? Head { get; set; }
-        public Armor? Neck { get; set; }
-        public Armor? Chest { get; set; }
-        public Armor? Hands { get; set; }
-        public Armor? Legs { get; set; }
-        public Armor? Feet { get; set; }
-        public Armor? FingerL { get; set; }
-        public Armor? FingerR { get; set; }
-
         public void SetArmor(ArmorSlotOnChar slot, Armor armor)
         {
-            if (Character is null) return;
-            
-            Character.Defense += armor.Defense;
-            Character.MeleeProt += armor.MeleeProt;
-            Character.RangedProt += armor.RangeProt;
-            Character.MagicProt += armor.MagicProt;
+            Defense += armor.Defense;
+            MeleeProt += armor.MeleeProt;
+            RangedProt += armor.RangeProt;
+            MagicProt += armor.MagicProt;
 
             Armor? removedArmor;
             
@@ -105,34 +109,42 @@ namespace RPG.Models
                 case ArmorSlotOnChar.Head:
                     removedArmor = Head;
                     Head = armor;
+                    HeadId = armor.Id;
                     break;
                 case ArmorSlotOnChar.Neck:
                     removedArmor = Neck;
                     Neck = armor;
+                    NeckId = armor.Id;
                     break;
                 case ArmorSlotOnChar.Chest:
                     removedArmor = Chest;
                     Chest = armor;
+                    ChestId = armor.Id;
                     break;
                 case ArmorSlotOnChar.Hands:
                     removedArmor = Hands;
                     Hands = armor;
+                    HandsId = armor.Id;
                     break;
                 case ArmorSlotOnChar.Legs:
                     removedArmor = Legs;
                     Legs = armor;
+                    LegsId = armor.Id;
                     break;
                 case ArmorSlotOnChar.Feet:
                     removedArmor = Feet;
                     Feet = armor;
+                    FeetId = armor.Id;
                     break;
                 case ArmorSlotOnChar.FingerL:
                     removedArmor = FingerL;
                     FingerL = armor;
+                    FingerLId = armor.Id;
                     break;
                 case ArmorSlotOnChar.FingerR:
                     removedArmor = FingerR;
                     FingerR = armor;
+                    FingerRId = armor.Id;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
@@ -140,13 +152,11 @@ namespace RPG.Models
 
             if (removedArmor is null) return; 
             
-            Character.Defense -= removedArmor.Defense;
-            Character.MeleeProt -= removedArmor.MeleeProt;
-            Character.RangedProt -= removedArmor.RangeProt;
-            Character.MagicProt -= removedArmor.MagicProt;
-            
+            Defense -= removedArmor.Defense;
+            MeleeProt -= removedArmor.MeleeProt;
+            RangedProt -= removedArmor.RangeProt;
+            MagicProt -= removedArmor.MagicProt;
         }
-        
         public void RemoveArmor(ArmorSlotOnChar slot)
         {
             Armor? removedArmor;
@@ -155,34 +165,42 @@ namespace RPG.Models
                 case ArmorSlotOnChar.Head:
                     removedArmor = Head;
                     Head = null;
+                    HeadId = null;
                     break;
                 case ArmorSlotOnChar.Neck: 
                     removedArmor = Neck;
                     Neck = null;
+                    NeckId = null;
                     break;
                 case ArmorSlotOnChar.Chest:
                     removedArmor = Chest;
                     Chest = null;
+                    ChestId = null;
                     break;
                 case ArmorSlotOnChar.Hands:
                     removedArmor = Hands;
                     Hands = null;
+                    HandsId = null;
                     break;
                 case ArmorSlotOnChar.Legs:
                     removedArmor = Legs;
                     Legs = null;
+                    LegsId = null;
                     break;
                 case ArmorSlotOnChar.Feet:
                     removedArmor = Feet;
                     Feet = null;
+                    FeetId = null;
                     break;
                 case ArmorSlotOnChar.FingerL:
                     removedArmor = FingerL;
                     FingerL = null;
+                    FingerLId = null;
                     break;
                 case ArmorSlotOnChar.FingerR:
                     removedArmor = FingerR;
                     FingerR = null;
+                    FingerRId = null;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
@@ -190,10 +208,10 @@ namespace RPG.Models
 
             if (removedArmor is null) return; 
             
-            Character!.Defense -= removedArmor.Defense;
-            Character!.MeleeProt -= removedArmor.MeleeProt;
-            Character!.RangedProt -= removedArmor.RangeProt;
-            Character!.MagicProt -= removedArmor.MagicProt;
+            Defense -= removedArmor.Defense;
+            MeleeProt -= removedArmor.MeleeProt;
+            RangedProt -= removedArmor.RangeProt;
+            MagicProt -= removedArmor.MagicProt;
         }
     }
 }
