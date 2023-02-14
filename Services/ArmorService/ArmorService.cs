@@ -4,7 +4,7 @@ using RPG.Data;
 using RPG.Dtos;
 using RPG.Dtos.Armors;
 using RPG.Models;
-using RPG.Services.CharacterService;
+using RPG.Services.AuthenticationService;
 
 namespace RPG.Services.ArmorService
 {
@@ -12,18 +12,20 @@ namespace RPG.Services.ArmorService
     {
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
-        private readonly ICharacterService _characterService;
-        public ArmorService(DataContext dataContext, ICharacterService characterService, IMapper mapper)
+        private readonly IAuthenticationService _authenticationService;
+
+        public ArmorService(DataContext dataContext, IAuthenticationService authenticationService, IMapper mapper)
         {
             _mapper = mapper;
-            _characterService = characterService;
+            _authenticationService = authenticationService;
             _dataContext = dataContext;
         }
 
         public async Task<ApiResponse<GetArmorDto>> AddArmor(AddArmorDto request)
         {
             var character = await _dataContext.Characters
-                .FirstOrDefaultAsync(c => c.Id == request.CharacterId);
+                .Where(c => c.Id == request.CharacterId)
+                .FirstOrDefaultAsync(c => c.UserId == _authenticationService.GetUserId());
             if (character is null)
                 return new ApiResponse<GetArmorDto>(){
                     Success = false,
@@ -33,7 +35,7 @@ namespace RPG.Services.ArmorService
             var armor = _mapper.Map<Armor>(request);
             armor.CharacterId = character.Id;
 
-            await _dataContext.AddAsync(armor);
+            _dataContext.Add((object)armor);
             await _dataContext.SaveChangesAsync();
 
             return new ApiResponse<GetArmorDto>(){
@@ -41,39 +43,45 @@ namespace RPG.Services.ArmorService
             };
         }
 
-        public async Task<ApiResponse<List<GetArmorDto>>> DeleteArmor(int id)
+        public async Task<ApiResponse<List<GetArmorDto>>> DeleteArmor(DeleteArmorDto request)
         {
             var armor = await _dataContext.Armor
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .Where(a => a.Id == request.ArmorId)
+                .Where(a => a.CharacterId == request.CharId)
+                .FirstOrDefaultAsync(a => a.Character!.UserId == _authenticationService.GetUserId());
             if (armor is null)
                 return new ApiResponse<List<GetArmorDto>>(){
                     Success = false,
-                    Message = $"Could not find Armor with Id {id}."
+                    Message = $"Could not find Armor with Id {request.ArmorId}."
                 };
-
+            
             _dataContext.Remove(armor);
             await _dataContext.SaveChangesAsync();
 
-            return await GetAllArmor();
+            return await GetAllArmor(request.CharId);
         }
 
-        public async Task<ApiResponse<List<GetArmorDto>>> GetAllArmor()
+        public async Task<ApiResponse<List<GetArmorDto>>> GetAllArmor(int charId)
         {
             return new ApiResponse<List<GetArmorDto>>(){
                 Data = await _dataContext.Armor
+                    .Where(a => a.CharacterId == charId)
+                    .Where(a => a.Character!.UserId == _authenticationService.GetUserId())
                     .Select(a => _mapper.Map<GetArmorDto>(a))
                     .ToListAsync()
             };
         }
 
-        public async Task<ApiResponse<GetArmorDto>> GetArmorById(int id)
+        public async Task<ApiResponse<GetArmorDto>> GetArmorById(FindArmorDto request)
         {
             var armor = await _dataContext.Armor
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .Where(a => a.Id == request.ArmorId)
+                .Where(a => a.CharacterId == request.CharId)
+                .FirstOrDefaultAsync(a => a.Character!.UserId == _authenticationService.GetUserId());
             if (armor is null)
                 return new ApiResponse<GetArmorDto>(){
                     Success = false,
-                    Message = $"Could not find Armor with Id {id}."
+                    Message = $"Could not find Armor with Id {request.ArmorId}."
                 };
 
             return new ApiResponse<GetArmorDto>(){

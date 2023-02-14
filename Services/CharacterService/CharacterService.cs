@@ -4,6 +4,7 @@ using RPG.Data;
 using RPG.Dtos;
 using RPG.Dtos.Attacks;
 using RPG.Dtos.Characters;
+using RPG.Dtos.Weapons;
 using RPG.Models;
 using RPG.Models.Enums;
 using RPG.Services.AuthenticationService;
@@ -76,39 +77,38 @@ namespace RPG.Services.CharacterService
             };
         }
 
-        public async Task<ApiResponse<GetCharacterWithArmorDto>> GetCharacterById(int id)
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> GetCharacterById(int id)
         {
             var character = await _dataContext.Characters
-                .Where(c => c.User!.Id == _authenticationService.GetUserId())
-                .Include(e => e.Head)
-                .Include(e => e.Neck)
-                .Include(e => e.Chest)
-                .Include(e => e.Hands)
-                .Include(e => e.Legs)
-                .Include(e => e.Feet)
-                .Include(e => e.FingerL)
-                .Include(e => e.FingerR)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .Where(c => c.Id == id)
+                .Include(c => c.Armors)
+                .Include(c => c.Weapons)
+                .FirstOrDefaultAsync(c => c.User!.Id == _authenticationService.GetUserId());
 
             if (character is null)
-                return new ApiResponse<GetCharacterWithArmorDto>(){
+                return new ApiResponse<GetCharacterWithDetailDto>(){
                     Success = false,
                     Message = $"Character with Id {id} not found."
                 };
 
-            return new ApiResponse<GetCharacterWithArmorDto>(){
-                Data = _mapper.Map<GetCharacterWithArmorDto>(character)
+            var data = _mapper.Map<GetCharacterWithDetailDto>(character);
+            data.Armors = character.Armors.Where(a => a.SlotOnChar != ArmorSlotOnChar.Unequipped).ToList();
+            data.Weapons = character.Weapons.Where(w => w.EquippedWeaponSlot != WeaponSlot.NotEquipped).ToList();
+
+            return new ApiResponse<GetCharacterWithDetailDto>()
+            {
+                Data = data
             };
         }
 
-        public async Task<ApiResponse<GetCharacterWithArmorDto>> UpdateCharacter(UpdateCharacterDto updateChar)
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> UpdateCharacter(UpdateCharacterDto updateChar)
         {
             var character = await _dataContext.Characters
                 .Where(c => c.User!.Id == _authenticationService.GetUserId())
                 .FirstOrDefaultAsync(e => e.Id == updateChar.Id);
 
             if (character is null)
-                return new ApiResponse<GetCharacterWithArmorDto>(){
+                return new ApiResponse<GetCharacterWithDetailDto>(){
                     Success = false,
                     Message = $"Character with Id {updateChar.Id} not found."
                 };
@@ -119,40 +119,98 @@ namespace RPG.Services.CharacterService
             return await GetCharacterById(updateChar.Id);           
         }
 
-        // --------------------- ARMOR RELATED SERVICES:
-        public async Task<ApiResponse<GetCharacterWithArmorDto>> RemoveArmor(RemoveArmorDto request)
+        // --------------------- WEAPON RELATED SERVICES:
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> EquipWeapon(EquipWeaponDto request)
         {
             var character = await _dataContext.Characters
                 .Where(c => c.User!.Id == _authenticationService.GetUserId())
-                .Include(e => e.Head)
-                .Include(e => e.Neck)
-                .Include(e => e.Chest)
-                .Include(e => e.Hands)
-                .Include(e => e.Legs)
-                .Include(e => e.Feet)
-                .Include(e => e.FingerL)
-                .Include(e => e.FingerR)
+                .Include(c => c.Armors)
+                .Include(c => c.Weapons)
                 .FirstOrDefaultAsync(c => c.Id == request.CharId);
             if (character is null)
-                return new ApiResponse<GetCharacterWithArmorDto>()
+                return new ApiResponse<GetCharacterWithDetailDto>()
+                {
+                    Success = false,
+                    Message = $"Character with Id {request.CharId} not found."
+                };
+
+            var weapon = await _dataContext.Weapons
+                .Where(w => w.CharacterId == request.CharId)
+                .FirstOrDefaultAsync(w => w.Id == request.WeaponId);
+            if (weapon is null)
+                return new ApiResponse<GetCharacterWithDetailDto>()
+                {
+                    Success = false,
+                    Message = $"Weapon with Id {request.WeaponId} not found."
+                };
+            
+            character.EquipWeapon(weapon, request.Primary);
+            await _dataContext.SaveChangesAsync();
+            
+            return new ApiResponse<GetCharacterWithDetailDto>(){
+                Data = _mapper.Map<GetCharacterWithDetailDto>(character)
+            };
+        }
+        
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> RemoveWeapon(RemoveWeaponDto request)
+        {
+            var character = await _dataContext.Characters
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
+                .Include(c => c.Armors)
+                .Include(c => c.Weapons)
+                .FirstOrDefaultAsync(c => c.Id == request.CharId);
+            if (character is null)
+                return new ApiResponse<GetCharacterWithDetailDto>()
+                {
+                    Success = false,
+                    Message = $"Character with Id {request.CharId} not found."
+                };
+            
+            character.RemoveWeapon(request.Primary);
+            await _dataContext.SaveChangesAsync();
+            
+            var data = _mapper.Map<GetCharacterWithDetailDto>(character);
+            data.Armors = character.Armors.Where(a => a.SlotOnChar != ArmorSlotOnChar.Unequipped).ToList();
+            data.Weapons = character.Weapons.Where(w => w.EquippedWeaponSlot != WeaponSlot.NotEquipped).ToList();
+
+            return new ApiResponse<GetCharacterWithDetailDto>()
+            {
+                Data = data
+            };
+        }
+        
+        // --------------------- ARMOR RELATED SERVICES:
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> RemoveArmor(RemoveArmorDto request)
+        {
+            var character = await _dataContext.Characters
+                .Where(c => c.User!.Id == _authenticationService.GetUserId())
+                .Include(e => e.Armors)
+                .FirstOrDefaultAsync(c => c.Id == request.CharId);
+            if (character is null)
+                return new ApiResponse<GetCharacterWithDetailDto>()
                 {
                     Success = false,
                     Message = $"Character with Id {request.CharId} not found."
                 };
 
             character.RemoveArmor(request.Slot);
-
+            
             await _dataContext.SaveChangesAsync();
 
-            return new ApiResponse<GetCharacterWithArmorDto>(){
-                Data = _mapper.Map<GetCharacterWithArmorDto>(character)
+            var data = _mapper.Map<GetCharacterWithDetailDto>(character);
+            data.Armors = character.Armors.Where(a => a.SlotOnChar != ArmorSlotOnChar.Unequipped).ToList();
+            data.Weapons = character.Weapons.Where(w => w.EquippedWeaponSlot != WeaponSlot.NotEquipped).ToList();
+
+            return new ApiResponse<GetCharacterWithDetailDto>()
+            {
+                Data = data
             };
         }
 
-        public async Task<ApiResponse<GetCharacterWithArmorDto>> EquipArmor(EquipArmorDto request)
+        public async Task<ApiResponse<GetCharacterWithDetailDto>> EquipArmor(EquipArmorDto request)
         {
             if (request.FingerIfRing is < 0 or > 1)
-                return new ApiResponse<GetCharacterWithArmorDto>()
+                return new ApiResponse<GetCharacterWithDetailDto>()
                 {
                     Success = false,
                     Message = "Invalid FingerIfRing value. If equipping a ring, set FingerIfRing to 0 for Left hand, and 1 for Right."
@@ -160,17 +218,11 @@ namespace RPG.Services.CharacterService
 
             var character = await _dataContext.Characters
                 .Where(c => c.User!.Id == _authenticationService.GetUserId())
-                .Include(e => e.Head)
-                .Include(e => e.Neck)
-                .Include(e => e.Chest)
-                .Include(e => e.Hands)
-                .Include(e => e.Legs)
-                .Include(e => e.Feet)
-                .Include(e => e.FingerL)
-                .Include(e => e.FingerR)
+                .Include(c => c.Armors)
+                .Include(c => c.Weapons)
                 .FirstOrDefaultAsync(c => c.Id == request.CharId);
             if (character is null)
-                return new ApiResponse<GetCharacterWithArmorDto>()
+                return new ApiResponse<GetCharacterWithDetailDto>()
                 {
                     Success = false,
                     Message = $"Character with Id {request.CharId} not found."
@@ -180,7 +232,7 @@ namespace RPG.Services.CharacterService
                 .Where(a => a.CharacterId == request.CharId)
                 .FirstOrDefaultAsync(a => a.Id == request.ArmorId);
             if (armor is null)
-                return new ApiResponse<GetCharacterWithArmorDto>()
+                return new ApiResponse<GetCharacterWithDetailDto>()
                 {
                     Success = false,
                     Message = $"Armor with Id {request.ArmorId} not found."
@@ -194,20 +246,24 @@ namespace RPG.Services.CharacterService
                     ArmorSlotOnChar.FingerL :
                     ArmorSlotOnChar.FingerR;
             } else {
-               slotToEquip = (ArmorSlotOnChar) armor.Slot;
+               slotToEquip = (ArmorSlotOnChar) armor.Slot + 1;
             }
             
             character.SetArmor(slotToEquip, armor);
 
             await _dataContext.SaveChangesAsync();
             
-            return new ApiResponse<GetCharacterWithArmorDto>(){
-                Data = _mapper.Map<GetCharacterWithArmorDto>(character)
+            var data = _mapper.Map<GetCharacterWithDetailDto>(character);
+            data.Armors = character.Armors.Where(a => a.SlotOnChar != ArmorSlotOnChar.Unequipped).ToList();
+            data.Weapons = character.Weapons.Where(w => w.EquippedWeaponSlot != WeaponSlot.NotEquipped).ToList();
+
+            return new ApiResponse<GetCharacterWithDetailDto>()
+            {
+                Data = data
             };
         }
         
         // --------------------- MONSTER RELATED SERVICES:
-
         public async Task<ApiResponse<AttackResultDto>> AttackMonster(int charId)
         {
             var character = await _dataContext.Characters

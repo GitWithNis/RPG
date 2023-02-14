@@ -7,48 +7,114 @@ namespace RPG.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = "Nameless";
+        public User? User { get; set; }
+        public int UserId { get; set; }
+        public CharacterClass Class { get; set; } = CharacterClass.Warrior;
         public int MaxHp { get; set; } = 100;
         public int Hp { get; set; } = 100;
         public int Attack { get; set; } = 10;
         public int Pierce { get; set; } = 1;
-        public int Strength { get; set; } = 10;
         
+        
+        // STATS ---------------------------
+        public int Strength { get; set; } = 10;
         public int Defense { get; set; } = 10;
+        public int Intelligence { get; set; } = 10;
+        public int Dexterity { get; set; } = 10;
         public decimal MeleeProt { get; set; }
         public decimal RangedProt { get; set; }
         public decimal MagicProt { get; set; }
-        public int Intelligence { get; set; } = 10;
-        public int Dexterity { get; set; } = 10;
-        public CharacterClass Class { get; set; } = CharacterClass.Warrior;
+        
+        // ARMOR ---------------------------
+        public List<Armor> Armors { get; set; } = new List<Armor>();
 
-        public User? User { get; set; }
-        public int UserId { get; set; }
-        
-        public Armor? Head { get; set; }
-        public int? HeadId { get; set; }
-        
-        public Armor? Neck { get; set; }
-        public int? NeckId { get; set; }
-        
-        public Armor? Chest { get; set; }
-        public int? ChestId { get; set; }
-        
-        public Armor? Hands { get; set; }
-        public int? HandsId { get; set; }
-        
-        public Armor? Legs { get; set; }
-        public int? LegsId { get; set; }
-        
-        public Armor? Feet { get; set; }
-        public int? FeetId { get; set; }
-        
-        public Armor? FingerL { get; set; }
-        public int? FingerLId { get; set; }
-        
-        public Armor? FingerR { get; set; }
-        public int? FingerRId { get; set; }
-        
+        public void SetArmor(ArmorSlotOnChar slot, Armor armor)
+        {
+            Defense += armor.Defense;
+            MeleeProt += armor.MeleeProt;
+            RangedProt += armor.RangeProt;
+            MagicProt += armor.MagicProt;
 
+            var removedArmor = Armors.FirstOrDefault(a => a.SlotOnChar == slot);
+            if (removedArmor is not null)
+            {
+                Defense -= removedArmor.Defense;
+                MeleeProt -= removedArmor.Defense;
+                RangedProt -= removedArmor.Defense;
+                MagicProt -= removedArmor.Defense;
+
+                removedArmor.SlotOnChar = ArmorSlotOnChar.Unequipped; //not equipped anymore
+            }
+
+            armor.SlotOnChar = slot; //equip new armor
+        }
+        public void RemoveArmor(ArmorSlotOnChar slot)
+        {
+            if (slot == ArmorSlotOnChar.Unequipped) return;
+            
+            var removedArmor = Armors.FirstOrDefault(a => a.SlotOnChar == slot);
+            if (removedArmor is null) return;
+            
+            Defense -= removedArmor.Defense;
+            MeleeProt -= removedArmor.Defense;
+            RangedProt -= removedArmor.Defense;
+            MagicProt -= removedArmor.Defense;
+
+            removedArmor.SlotOnChar = ArmorSlotOnChar.Unequipped; //not equipped anymore
+        }
+        
+        // WEAPONS ---------------------------
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
+
+        public void EquipWeapon(Weapon weapon, bool primary)
+        {
+            var primaryWeapon = Weapons.FirstOrDefault(w => w.EquippedWeaponSlot == WeaponSlot.Primary);
+            var secondaryWeapon = Weapons.FirstOrDefault(w => w.EquippedWeaponSlot == WeaponSlot.Secondary);
+
+            if (primaryWeapon != null && primaryWeapon.Id == weapon.Id)
+            {
+                if (primary) return; // asked to equip the same weapon that is already equipped in the same slot.
+                
+                //asked to equip current primary into secondary ---
+                if (secondaryWeapon is not null)
+                    secondaryWeapon.EquippedWeaponSlot = WeaponSlot.NotEquipped;
+                
+                primaryWeapon.EquippedWeaponSlot = WeaponSlot.Secondary;
+            }
+
+            if (secondaryWeapon != null && secondaryWeapon.Id == weapon.Id)
+            {
+                if (!primary) return; //asked to equip current secondary into secondary; no action required.
+
+                //asked to equip current secondary into primary --
+                if (primaryWeapon is not null)
+                    primaryWeapon.EquippedWeaponSlot = WeaponSlot.NotEquipped;
+
+                secondaryWeapon.EquippedWeaponSlot = WeaponSlot.Primary;
+            }
+
+            if (primary)
+            {
+                if (primaryWeapon is not null) primaryWeapon.EquippedWeaponSlot = WeaponSlot.NotEquipped;
+                weapon.EquippedWeaponSlot = WeaponSlot.Primary;
+            }
+            else
+            {
+                if (secondaryWeapon is not null) secondaryWeapon.EquippedWeaponSlot = WeaponSlot.NotEquipped;
+                weapon.EquippedWeaponSlot = WeaponSlot.Secondary;
+            }
+        }
+
+        public void RemoveWeapon(bool primary)
+        {
+            var weaponToRemove = Weapons.FirstOrDefault(w =>
+                w.EquippedWeaponSlot == (primary ? WeaponSlot.Primary : WeaponSlot.Secondary));
+            if (weaponToRemove is null) return;
+            
+            weaponToRemove.EquippedWeaponSlot = WeaponSlot.NotEquipped;
+        }
+        
+        // MONSTERS ---------------------------
         public Monster? Monster { get; set; }
         public int? MonsterId { get; set; }
 
@@ -95,123 +161,5 @@ namespace RPG.Models
             return attack;
         }
         
-        public void SetArmor(ArmorSlotOnChar slot, Armor armor)
-        {
-            Defense += armor.Defense;
-            MeleeProt += armor.MeleeProt;
-            RangedProt += armor.RangeProt;
-            MagicProt += armor.MagicProt;
-
-            Armor? removedArmor;
-            
-            switch (slot)
-            {
-                case ArmorSlotOnChar.Head:
-                    removedArmor = Head;
-                    Head = armor;
-                    HeadId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.Neck:
-                    removedArmor = Neck;
-                    Neck = armor;
-                    NeckId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.Chest:
-                    removedArmor = Chest;
-                    Chest = armor;
-                    ChestId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.Hands:
-                    removedArmor = Hands;
-                    Hands = armor;
-                    HandsId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.Legs:
-                    removedArmor = Legs;
-                    Legs = armor;
-                    LegsId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.Feet:
-                    removedArmor = Feet;
-                    Feet = armor;
-                    FeetId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.FingerL:
-                    removedArmor = FingerL;
-                    FingerL = armor;
-                    FingerLId = armor.Id;
-                    break;
-                case ArmorSlotOnChar.FingerR:
-                    removedArmor = FingerR;
-                    FingerR = armor;
-                    FingerRId = armor.Id;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
-            }
-
-            if (removedArmor is null) return; 
-            
-            Defense -= removedArmor.Defense;
-            MeleeProt -= removedArmor.MeleeProt;
-            RangedProt -= removedArmor.RangeProt;
-            MagicProt -= removedArmor.MagicProt;
-        }
-        public void RemoveArmor(ArmorSlotOnChar slot)
-        {
-            Armor? removedArmor;
-            switch (slot)
-            {
-                case ArmorSlotOnChar.Head:
-                    removedArmor = Head;
-                    Head = null;
-                    HeadId = null;
-                    break;
-                case ArmorSlotOnChar.Neck: 
-                    removedArmor = Neck;
-                    Neck = null;
-                    NeckId = null;
-                    break;
-                case ArmorSlotOnChar.Chest:
-                    removedArmor = Chest;
-                    Chest = null;
-                    ChestId = null;
-                    break;
-                case ArmorSlotOnChar.Hands:
-                    removedArmor = Hands;
-                    Hands = null;
-                    HandsId = null;
-                    break;
-                case ArmorSlotOnChar.Legs:
-                    removedArmor = Legs;
-                    Legs = null;
-                    LegsId = null;
-                    break;
-                case ArmorSlotOnChar.Feet:
-                    removedArmor = Feet;
-                    Feet = null;
-                    FeetId = null;
-                    break;
-                case ArmorSlotOnChar.FingerL:
-                    removedArmor = FingerL;
-                    FingerL = null;
-                    FingerLId = null;
-                    break;
-                case ArmorSlotOnChar.FingerR:
-                    removedArmor = FingerR;
-                    FingerR = null;
-                    FingerRId = null;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
-            }
-
-            if (removedArmor is null) return; 
-            
-            Defense -= removedArmor.Defense;
-            MeleeProt -= removedArmor.MeleeProt;
-            RangedProt -= removedArmor.RangeProt;
-            MagicProt -= removedArmor.MagicProt;
-        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RPG.Data;
 
@@ -11,9 +12,11 @@ using RPG.Data;
 namespace RPG.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230208000648_ChangeArmorsToListAndAddWeapon")]
+    partial class ChangeArmorsToListAndAddWeapon
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,7 +61,7 @@ namespace RPG.Migrations
                     b.Property<int>("Slot")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SlotOnChar")
+                    b.Property<int>("SlotOnChar")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -208,13 +211,10 @@ namespace RPG.Migrations
                     b.Property<int>("AttackType")
                         .HasColumnType("int");
 
-                    b.Property<int>("CharacterId")
+                    b.Property<int?>("CharacterId")
                         .HasColumnType("int");
 
                     b.Property<int>("Damage")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EquippedWeaponSlot")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -268,9 +268,7 @@ namespace RPG.Migrations
                 {
                     b.HasOne("RPG.Models.Character", "Character")
                         .WithMany("Weapons")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CharacterId");
 
                     b.Navigation("Character");
                 });

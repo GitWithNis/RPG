@@ -2,6 +2,7 @@ using AutoMapper;
 using RPG.Dtos.Armors;
 using RPG.Dtos.Characters;
 using RPG.Dtos.Monsters;
+using RPG.Dtos.Weapons;
 using RPG.Models;
 
 namespace RPG
@@ -14,12 +15,15 @@ namespace RPG
             CreateMap<AddCharacterDto, Character>();
             CreateMap<UpdateCharacterDto, Character>();
 
-            CreateMap<Character, GetCharacterWithArmorDto>();
+            CreateMap<Character, GetCharacterWithDetailDto>();
 
             CreateMap<Armor, GetArmorDto>();
             CreateMap<AddArmorDto, Armor>();
             CreateMap<UpdateArmorDto, Armor>();
-            
+
+            CreateMap<Weapon, GetWeaponDto>();
+            CreateMap<CreateWeaponDto, Weapon>();
+
             CreateMap<Monster, GetMonsterDto>();
         }
     }

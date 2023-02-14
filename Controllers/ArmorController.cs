@@ -17,29 +17,37 @@ namespace RPG.Controllers
             _armorService = armorService;
         }
 
-        [HttpGet()]
-        public async Task<ActionResult<ApiResponse<List<GetArmorDto>>>> GetAllArmors(){
-            return Ok(await _armorService.GetAllArmor());
+        [HttpGet("{charId:int}")]
+        public async Task<ActionResult<ApiResponse<List<GetArmorDto>>>> GetAllArmors(int charId){
+            return Ok(await _armorService.GetAllArmor(charId));
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<ApiResponse<GetArmorDto>>> GetArmorById(int id){
-            return Ok(await _armorService.GetArmorById(id));
+        [HttpGet("{charId:int}/{armorId:int}")]
+        public async Task<ActionResult<ApiResponse<GetArmorDto>>> GetArmorById(int charId, int armorId){
+            return Ok(await _armorService
+                .GetArmorById(new FindArmorDto()
+                {
+                    CharId = charId, ArmorId = armorId
+                }));
         }
 
-        [HttpPost("add")]
+        [HttpPost()]
         public async Task<ActionResult<ApiResponse<GetArmorDto>>> AddArmor(AddArmorDto request){
             return Ok(await _armorService.AddArmor(request));
         }
 
-        [HttpPut("update")]
+        [HttpPut()]
         public async Task<ActionResult<ApiResponse<GetArmorDto>>> UpdateArmor(UpdateArmorDto request){
             return Ok(await _armorService.UpdateArmor(request));
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult<ApiResponse<List<GetArmorDto>>>> DeleteArmor(int id){
-            return Ok(await _armorService.DeleteArmor(id));
+        [HttpDelete("{charId:int}/{armorId:int}")]
+        public async Task<ActionResult<ApiResponse<List<GetArmorDto>>>> DeleteArmor(int charId, int armorId){
+            return Ok(await _armorService.DeleteArmor(new DeleteArmorDto()
+            {
+                CharId = charId,
+                ArmorId = armorId
+            }));
         }
     }
 }

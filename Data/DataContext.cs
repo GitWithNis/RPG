@@ -15,51 +15,6 @@ namespace RPG.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Monster>()
-                .HasOne(m => m.Character)
-                .WithOne(c => c.Monster)
-                .HasForeignKey<Monster>(m => m.CharacterId);
-
-            modelBuilder.Entity<Character>()
-                .HasOne(c => c.Monster)
-                .WithOne(m => m.Character)
-                .HasForeignKey<Character>(c => c.MonsterId);
-
-            modelBuilder.Entity<Character>(entity =>
-            {
-                entity.HasOne(c => c.Head)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.HeadId);
-                
-                entity.HasOne(c => c.Neck)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.NeckId);
-                
-                entity.HasOne(c => c.Chest)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.ChestId);
-                
-                entity.HasOne(c => c.Hands)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.HandsId);
-                
-                entity.HasOne(c => c.Legs)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.LegsId);
-                
-                entity.HasOne(c => c.Feet)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.FeetId);
-
-                entity.HasOne(c => c.FingerL)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.FingerLId);
-
-                entity.HasOne(c => c.FingerR)
-                    .WithOne()
-                    .HasForeignKey<Character>(c => c.FingerRId);
-            });
-
             modelBuilder.Entity<Character>(
                 eb =>
                 {
@@ -70,10 +25,26 @@ namespace RPG.Data
             );
             
             modelBuilder.Entity<Armor>(
-                eb => {
+                eb => 
+                {
                     eb.Property(p => p.MeleeProt).HasColumnType("decimal(18,4)");
                     eb.Property(p => p.RangeProt).HasColumnType("decimal(18,4)");
                     eb.Property(p => p.MagicProt).HasColumnType("decimal(18,4)");
+                    
+                    eb.HasOne(a => a.Character)
+                        .WithMany(c => c.Armors)
+                        .HasForeignKey(a => a.CharacterId);
+                }
+            );
+
+            modelBuilder.Entity<Weapon>(
+                eb =>
+                {
+                    eb.Property(p => p.Pierce).HasColumnType("decimal(18,4)");
+                    
+                    eb.HasOne(w => w.Character)
+                        .WithMany(c => c.Weapons)
+                        .HasForeignKey(w => w.CharacterId);
                 }
             );
             
@@ -81,13 +52,18 @@ namespace RPG.Data
                 eb =>
                 {
                     eb.Property(p => p.Pierce).HasColumnType("decimal(18,4)");
+                    
+                    eb.HasOne(m => m.Character)
+                        .WithOne(c => c.Monster)
+                        .HasForeignKey<Monster>(m => m.CharacterId);
                 }
             );
         }
 
+        public DbSet<User> Users => Set<User>();
         public DbSet<Character> Characters => Set<Character>();
         public DbSet<Armor> Armor => Set<Armor>();
-        public DbSet<User> Users => Set<User>();
+        public DbSet<Weapon> Weapons => Set<Weapon>();
         public DbSet<Monster> Monsters => Set<Monster>();
 
     }

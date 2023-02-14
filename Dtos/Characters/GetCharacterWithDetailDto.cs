@@ -3,7 +3,7 @@ using RPG.Models.Enums;
 
 namespace RPG.Dtos.Characters;
 
-public class GetCharacterWithArmorDto
+public class GetCharacterWithDetailDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -17,13 +17,7 @@ public class GetCharacterWithArmorDto
     public decimal RangedProt { get; set; }
     public decimal MagicProt { get; set; }
     public CharacterClass Class { get; set; }
-        
-    public Armor? Head { get; set; }
-    public Armor? Neck { get; set; }
-    public Armor? Chest { get; set; }
-    public Armor? Hands { get; set; }
-    public Armor? Legs { get; set; }
-    public Armor? Feet { get; set; }
-    public Armor? FingerL { get; set; }
-    public Armor? FingerR { get; set; } 
+
+    public List<Armor>? Armors { get; set; }
+    public List<Weapon>? Weapons { get; set; }
 }

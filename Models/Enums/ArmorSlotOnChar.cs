@@ -5,6 +5,7 @@ namespace RPG.Models.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ArmorSlotOnChar
     {
+        Unequipped,
         Head,
         Neck,
         Chest,

@@ -129,7 +129,7 @@ public class MonsterService : IMonsterService
 
                 await transaction.CommitAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
             }
