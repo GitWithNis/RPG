@@ -7,7 +7,7 @@ Planned:
   - - [x] Authentication 🔒
   - - [x] Log in 💻
   - Characters have: 
-    - - [ ] Weapons ⚔️
+    - - [x] Weapons ⚔️
     - - [ ] Skills 🪄
     - - [x] Armor 🛡️
   - - [x] PvE 🤖
